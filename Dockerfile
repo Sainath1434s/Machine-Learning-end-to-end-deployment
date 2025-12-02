@@ -1,6 +1,16 @@
-FROM python:3.7
-COPY . /app
+FROM python:3.11-slim
+
 WORKDIR /app
-RUN pip install -r requirements.txt
-EXPOSE $PORT
-CMD gunicorn --workers=4 --bind 0.0.0.0:$PORT app:app
+
+# First only requirements copy cheddam (Docker cache help avvadaniki)
+COPY requirements.txt .
+
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Tarvata remaining project files copy
+COPY . /app/
+
+EXPOSE 8000
+
+CMD [ "python", "./app.py"]
